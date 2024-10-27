@@ -46,7 +46,10 @@ const CompanyTable = (props: { selectedCollectionId: string }) => {
             removeCompanyFromList(companyId, props.selectedCollectionId)
           )
         );
-        alert("Companies removed from the current list");
+        setResponse((prevCompanies) =>
+          prevCompanies.filter((company) => !selectedRows.includes(company.id))
+        );
+        setSelectedRows([]);
       } catch (error) {
         console.error("Error removing companies:", error);
       }
