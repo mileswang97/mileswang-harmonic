@@ -70,3 +70,13 @@ export async function addCompanyToList(companyId: number, collectionName: string
         throw error;
     }
 }
+
+export async function removeCompanyFromList(companyId: number, collectionId: string): Promise<void> {
+    try {
+        const response = await axios.delete(`${BASE_URL}/companies/${companyId}/remove-from-collection/${collectionId}`);
+        return response.data;
+    } catch (error) {
+        console.error('Error removing company from collection:', error);
+        throw error;
+    }
+}

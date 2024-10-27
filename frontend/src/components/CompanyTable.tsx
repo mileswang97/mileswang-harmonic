@@ -1,7 +1,7 @@
 import { Button } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import { useEffect, useState } from "react";
-import { getCollectionsById, ICompany , addCompanyToList} from "../utils/jam-api";
+import { getCollectionsById, ICompany , addCompanyToList, removeCompanyFromList} from "../utils/jam-api";
 
 const CompanyTable = (props: { selectedCollectionId: string }) => {
   const [response, setResponse] = useState<ICompany[]>([]);
@@ -38,6 +38,21 @@ const CompanyTable = (props: { selectedCollectionId: string }) => {
     }
   };
 
+  const handleRemoveFromCurrentList = async () => {
+    if (selectedRows.length > 0) {
+      try {
+        await Promise.all(
+          selectedRows.map(companyId =>
+            removeCompanyFromList(companyId, props.selectedCollectionId)
+          )
+        );
+        alert("Companies removed from the current list");
+      } catch (error) {
+        console.error("Error removing companies:", error);
+      }
+    }
+  };
+
   return (
     <div style={{ height: 600, width: "100%" }}>
       <Button
@@ -48,6 +63,17 @@ const CompanyTable = (props: { selectedCollectionId: string }) => {
         style={{ marginBottom: 10 }}
       >
         Add to Liked Companies
+      </Button>
+
+      {/* Remove from Current List Button */}
+      <Button
+        variant="contained"
+        color="secondary"
+        onClick={handleRemoveFromCurrentList}
+        disabled={selectedRows.length === 0}  // Disable if no company is selected
+        style={{ marginBottom: 10 }}
+      >
+        Remove from Current List
       </Button>
 
       <DataGrid

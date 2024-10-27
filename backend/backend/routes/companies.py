@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, Query, HTTPException
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
+import uuid
 
 from backend.db import database
 
@@ -114,3 +115,40 @@ async def add_company_to_collection(
     db.commit()
 
     return {"message": "Company added to collection"}
+
+
+@router.delete("/{company_id}/remove-from-collection/{collection_id}")
+async def remove_company_from_collection(
+    company_id: int,
+    collection_id: uuid.UUID, 
+    db: Session = Depends(database.get_db),
+):
+    """
+    Remove a company from the specified collection.
+    The collection is identified by its collection_id.
+    """
+    # Fetch the target collection by ID
+    target_collection = (
+        db.query(database.CompanyCollection)
+        .filter(database.CompanyCollection.id == collection_id)
+        .first()
+    )
+
+    if not target_collection:
+        raise HTTPException(status_code=404, detail="Target collection not found")
+
+    # Check if the company exists in the collection
+    association = (
+        db.query(database.CompanyCollectionAssociation)
+        .filter_by(company_id=company_id, collection_id=target_collection.id)
+        .first()
+    )
+
+    if not association:
+        raise HTTPException(status_code=400, detail="Company not in collection")
+
+    # Remove the association between the company and the collection
+    db.delete(association)
+    db.commit()
+
+    return {"message": "Company removed from collection"}
