@@ -9,6 +9,7 @@ from backend.db import database
 from backend.routes.companies import (
     CompanyBatchOutput,
     fetch_companies_with_liked,
+    CompanyOutput
 )
 
 router = APIRouter(
@@ -70,3 +71,38 @@ def get_company_collection_by_id(
         total=total_count,
     )
 
+@router.get("/{collection_id}/companies/all", response_model=CompanyBatchOutput)
+def get_all_companies_in_collection(
+    collection_id: uuid.UUID,  # Collection is identified by a UUID
+    db: Session = Depends(database.get_db),  # Database session dependency
+):
+    """
+    Fetch all companies that belong to a specific collection.
+    """
+    # Query the database to fetch companies that belong to the specified collection
+    companies = (
+        db.query(database.Company)
+        .join(database.CompanyCollectionAssociation)  # Assuming there's an association table
+        .filter(database.CompanyCollectionAssociation.collection_id == collection_id)
+        .all()
+    )
+
+    # If the collection does not exist or has no companies, raise an exception
+    if not companies:
+        raise HTTPException(status_code=404, detail="No companies found for this collection.")
+
+    # Map the results to the CompanyOutput format
+    company_outputs = [
+        CompanyOutput(
+            id=company.id,
+            company_name=company.company_name,
+            liked=False  # Set the 'liked' status to False (or modify based on your logic)
+        )
+        for company in companies
+    ]
+
+    # Return the batch of companies and the total count
+    return CompanyBatchOutput(
+        companies=company_outputs,
+        total=len(company_outputs)
+    )

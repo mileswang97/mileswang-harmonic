@@ -62,14 +62,15 @@ const CompanyTable = (props: { selectedCollectionId: string }) => {
   const handleSelectAll = async () => {
     try {
       // Fetch all company data in the current collection
-      const allCompanyIds = await getAllCompanies(props.selectedCollectionId);
+      const companyBatch = await getAllCompanies(props.selectedCollectionId);
+      const allCompanyIds = companyBatch.companies.map((company) => company.id);
+      console.log("All company IDs:", allCompanyIds);
       setSelectedRows(allCompanyIds);  // Select all companies across pages in the collection
       alert("Selecting all companies in collection");
     } catch (error) {
       console.error("Error selecting all companies:", error);
     }
   };
-
 
   const handleDeselectAll = () => {
     setSelectedRows([]);  // Clear all selected rows
