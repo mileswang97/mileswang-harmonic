@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, HTTPException
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
@@ -74,3 +74,43 @@ def get_companies(
         companies=companies,
         total=count,
     )
+
+
+@router.post("/{company_id}/add-to-collection")
+async def add_company_to_collection(
+    company_id: int,
+    collection_name: str = "Liked Companies List",  # Defaults to "Liked Companies List"
+    db: Session = Depends(database.get_db),
+):
+    """
+    Add a company to a specified collection.
+    By default, it adds the company to "Liked Companies List".
+    """
+    # Fetch the collection by name
+    target_collection = (
+        db.query(database.CompanyCollection)
+        .filter(database.CompanyCollection.collection_name == collection_name)
+        .first()
+    )
+
+    if not target_collection:
+        raise HTTPException(status_code=404, detail="Target collection not found")
+
+    # Check if the company already exists in the collection
+    existing_association = (
+        db.query(database.CompanyCollectionAssociation)
+        .filter_by(company_id=company_id, collection_id=target_collection.id)
+        .first()
+    )
+
+    if existing_association:
+        raise HTTPException(status_code=400, detail="Company already in collection")
+
+    # Create a new association
+    new_association = database.CompanyCollectionAssociation(
+        company_id=company_id, collection_id=target_collection.id
+    )
+    db.add(new_association)
+    db.commit()
+
+    return {"message": "Company added to collection"}

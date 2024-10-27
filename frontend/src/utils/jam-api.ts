@@ -58,3 +58,15 @@ export async function getCollectionsMetadata(): Promise<ICollection[]> {
         throw error;
     }
 }
+
+export async function addCompanyToList(companyId: number, collectionName: string = "Liked Companies List"): Promise<void> {
+    try {
+        const response = await axios.post(`${BASE_URL}/companies/${companyId}/add-to-collection`, {
+            collection_name: collectionName
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Error adding company to collection:', error);
+        throw error;
+    }
+}
