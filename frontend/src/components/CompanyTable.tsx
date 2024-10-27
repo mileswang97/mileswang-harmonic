@@ -1,7 +1,7 @@
 import { Button } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import { useEffect, useState } from "react";
-import { getCollectionsById, ICompany , addCompanyToList, removeCompanyFromList} from "../utils/jam-api";
+import { getCollectionsById, ICompany , addCompanyToList, removeCompanyFromList, getAllCompanies} from "../utils/jam-api";
 
 const CompanyTable = (props: { selectedCollectionId: string }) => {
   const [response, setResponse] = useState<ICompany[]>([]);
@@ -31,7 +31,10 @@ const CompanyTable = (props: { selectedCollectionId: string }) => {
             addCompanyToList(companyId, "Liked Companies List")  // Add each selected company to "Liked Companies List"
           )
         );
-        alert("Companies added to 'Liked Companies List'");
+        setResponse((prevCompanies) =>
+          prevCompanies.filter((company) => !selectedRows.includes(company.id))
+        );
+        setSelectedRows([]);
       } catch (error) {
         console.error("Error adding companies:", error);
       }
@@ -54,6 +57,22 @@ const CompanyTable = (props: { selectedCollectionId: string }) => {
         console.error("Error removing companies:", error);
       }
     }
+  };
+
+  const handleSelectAll = async () => {
+    try {
+      // Fetch all company data in the current collection
+      const allCompanyIds = await getAllCompanies(props.selectedCollectionId);
+      setSelectedRows(allCompanyIds);  // Select all companies across pages in the collection
+      alert("Selecting all companies in collection");
+    } catch (error) {
+      console.error("Error selecting all companies:", error);
+    }
+  };
+
+
+  const handleDeselectAll = () => {
+    setSelectedRows([]);  // Clear all selected rows
   };
 
   return (
@@ -79,6 +98,24 @@ const CompanyTable = (props: { selectedCollectionId: string }) => {
         Remove from Current List
       </Button>
 
+      <Button
+        variant="contained"
+        color="success"
+        onClick={handleSelectAll}
+        style={{ marginBottom: 10 }}
+      >
+        Select All
+      </Button>
+
+      <Button
+        variant="contained"
+        color="primary"
+        onClick={handleDeselectAll}
+        style={{ marginBottom: 10 }}
+      >
+        Deselect All
+      </Button>
+
       <DataGrid
         rows={response}
         rowHeight={30}
@@ -95,6 +132,7 @@ const CompanyTable = (props: { selectedCollectionId: string }) => {
         rowCount={total}
         pagination
         checkboxSelection
+        rowSelectionModel={selectedRows}
         paginationMode="server"
         onPaginationModelChange={(newMeta) => {
           setPageSize(newMeta.pageSize);

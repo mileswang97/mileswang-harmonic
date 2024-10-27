@@ -152,3 +152,33 @@ async def remove_company_from_collection(
     db.commit()
 
     return {"message": "Company removed from collection"}
+
+@router.get("/{collection_id}/companies/all", response_model=CompanyBatchOutput)
+async def get_all_companies_in_collection(
+    collection_id: int,
+    db: Session = Depends(database.get_db),
+):
+    """
+    Fetch all company data and the total count associated with the specified collection.
+    This is used for 'Select All' functionality to select all companies in the collection.
+    """
+    # Fetch all company IDs in the collection
+    company_associations = (
+        db.query(database.CompanyCollectionAssociation, database.Company)
+        .join(database.Company)
+        .filter(database.CompanyCollectionAssociation.collection_id == collection_id)
+        .all()
+    )
+
+    # Create a list of company outputs
+    companies = [
+        CompanyOutput(
+            id=company.id,
+            company_name=company.company_name,
+            liked=False  # You may update this if you track whether a company is 'liked'
+        )
+        for _, company in company_associations
+    ]
+
+    # Return the data as a CompanyBatchOutput object
+    return [company.id for company in companies]
