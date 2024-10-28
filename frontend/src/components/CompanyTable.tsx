@@ -24,26 +24,25 @@ const CompanyTable = (props: { selectedCollectionId: string }) => {
 
   useEffect(() => {
     setOffset(0);
-    setShowProgressBar(false);  // Hide the progress bar when switching lists
-    setProgress(0);  // Reset progress to 0 when switching lists
+    setShowProgressBar(false); 
+    setProgress(0);  
     setSelectedRows([]);
   }, [props.selectedCollectionId]);
 
-  // Function to add selected companies to "Liked Companies List"
+
   const handleAddToLikedCompanies = async () => {
     if (selectedRows.length > 0) {
-      const batchSize = 100;  // Define batch size
+      const batchSize = 100; 
       const numBatches = Math.ceil(selectedRows.length / batchSize);
   
       if (selectedRows.length > batchSize) {
-        setShowProgressBar(true);  // Show progress bar
-        setProgress(0);  // Reset progress to 0
+        setShowProgressBar(true); 
+        setProgress(0);  
       }
   
       let ws: WebSocket;
   
       try {
-        // Establish WebSocket connection
         ws = new WebSocket("ws://localhost:8000/ws/progress");
   
         ws.onopen = async () => {
@@ -51,14 +50,12 @@ const CompanyTable = (props: { selectedCollectionId: string }) => {
             for (let i = 0; i < numBatches; i++) {
               const companyBatch = selectedRows.slice(i * batchSize, (i + 1) * batchSize);
   
-              // Add companies and handle errors for each company
               await Promise.all(
                 companyBatch.map(async (companyId) => {
                   try {
-                    await addCompanyToList(companyId, "Liked Companies List");  // Actual API call
+                    await addCompanyToList(companyId, "Liked Companies List");
                   } catch (error: any) {
-                    console.error(`Error adding company ${companyId}:`, error);  // Log the error for each company
-                    // Handle 400 errors specifically (e.g., company already in collection)
+                    console.error(`Error adding company ${companyId}:`, error);
                     if (error.response && error.response.status === 400) {
                       console.log(`Company ${companyId} already in collection.`);
                     }
@@ -66,9 +63,8 @@ const CompanyTable = (props: { selectedCollectionId: string }) => {
                 })
               );
   
-              // After the API call completes, send the progress update to WebSocket
               const progressPercentage = ((i + 1) / numBatches) * 100;
-              ws.send(JSON.stringify({ progress_percentage: progressPercentage }));  // Send progress
+              ws.send(JSON.stringify({ progress_percentage: progressPercentage }));
             }
   
             ws.send(JSON.stringify({ message: "Task completed" }));
@@ -82,17 +78,17 @@ const CompanyTable = (props: { selectedCollectionId: string }) => {
           const data = JSON.parse(event.data);
         
           if (data.progress_percentage) {
-            setProgress(data.progress_percentage);  // Update progress bar
+            setProgress(data.progress_percentage);
           }
         
           if (data.message === "Task completed") {
-            setProgress(100);  // Set progress to 100%, but don't hide the progress bar
-            setSelectedRows([]);  // Clear selected rows
+            setProgress(100);
+            setSelectedRows([]);
         
-            fetchCompanies();  // Optionally refetch companies to update the UI
+            fetchCompanies();
         
             if (ws.readyState !== WebSocket.CLOSED) {
-              ws.close();  // Ensure WebSocket is closed only once
+              ws.close();
             }
           }
         };
@@ -107,25 +103,24 @@ const CompanyTable = (props: { selectedCollectionId: string }) => {
   
       } catch (error) {
         console.error("Error establishing WebSocket:", error);
-        setShowProgressBar(false);  // Ensure the progress bar hides on error
+        setShowProgressBar(false);
       }
     }
   };
 
   const handleAddToMyList = async () => {
     if (selectedRows.length > 0) {
-      const batchSize = 100;  // Define batch size
+      const batchSize = 100; 
       const numBatches = Math.ceil(selectedRows.length / batchSize);
   
       if (selectedRows.length > batchSize) {
-        setShowProgressBar(true);  // Show progress bar
-        setProgress(0);  // Reset progress to 0
+        setShowProgressBar(true); 
+        setProgress(0); 
       }
   
       let ws: WebSocket;
   
       try {
-        // Establish WebSocket connection
         ws = new WebSocket("ws://localhost:8000/ws/progress");
   
         ws.onopen = async () => {
@@ -133,14 +128,12 @@ const CompanyTable = (props: { selectedCollectionId: string }) => {
             for (let i = 0; i < numBatches; i++) {
               const companyBatch = selectedRows.slice(i * batchSize, (i + 1) * batchSize);
   
-              // Add companies to "My List" and handle errors for each company
               await Promise.all(
                 companyBatch.map(async (companyId) => {
                   try {
-                    await addCompanyToList(companyId, "My List");  // Actual API call to add to "My List"
+                    await addCompanyToList(companyId, "My List");
                   } catch (error: any) {
-                    console.error(`Error adding company ${companyId}:`, error);  // Log the error for each company
-                    // Handle 400 errors specifically (e.g., company already in collection)
+                    console.error(`Error adding company ${companyId}:`, error); 
                     if (error.response && error.response.status === 400) {
                       console.log(`Company ${companyId} already in My List.`);
                     }
@@ -148,9 +141,8 @@ const CompanyTable = (props: { selectedCollectionId: string }) => {
                 })
               );
   
-              // After the API call completes, send the progress update to WebSocket
               const progressPercentage = ((i + 1) / numBatches) * 100;
-              ws.send(JSON.stringify({ progress_percentage: progressPercentage }));  // Send progress
+              ws.send(JSON.stringify({ progress_percentage: progressPercentage }));
             }
   
             ws.send(JSON.stringify({ message: "Task completed" }));
@@ -164,17 +156,17 @@ const CompanyTable = (props: { selectedCollectionId: string }) => {
           const data = JSON.parse(event.data);
         
           if (data.progress_percentage) {
-            setProgress(data.progress_percentage);  // Update progress bar
+            setProgress(data.progress_percentage); 
           }
         
           if (data.message === "Task completed") {
-            setProgress(100);  // Set progress to 100%, but don't hide the progress bar
-            setSelectedRows([]);  // Clear selected rows
+            setProgress(100);
+            setSelectedRows([]);
         
-            fetchCompanies();  // Optionally refetch companies to update the UI
+            fetchCompanies();
         
             if (ws.readyState !== WebSocket.CLOSED) {
-              ws.close();  // Ensure WebSocket is closed only once
+              ws.close();
             }
           }
         };
@@ -189,7 +181,7 @@ const CompanyTable = (props: { selectedCollectionId: string }) => {
   
       } catch (error) {
         console.error("Error establishing WebSocket:", error);
-        setShowProgressBar(false);  // Ensure the progress bar hides on error
+        setShowProgressBar(false); 
       }
     }
   };
@@ -197,18 +189,17 @@ const CompanyTable = (props: { selectedCollectionId: string }) => {
 
   const handleRemoveFromCurrentList = async () => {
     if (selectedRows.length > 0) {
-      const batchSize = 100;  // Define batch size
+      const batchSize = 100;
       const numBatches = Math.ceil(selectedRows.length / batchSize);
   
       if (selectedRows.length > batchSize) {
-        setShowProgressBar(true);  // Show progress bar
-        setProgress(0);  // Reset progress to 0
+        setShowProgressBar(true);
+        setProgress(0); 
       }
   
       let ws: WebSocket;
   
       try {
-        // Establish WebSocket connection
         ws = new WebSocket("ws://localhost:8000/ws/progress");
   
         ws.onopen = async () => {
@@ -216,14 +207,12 @@ const CompanyTable = (props: { selectedCollectionId: string }) => {
             for (let i = 0; i < numBatches; i++) {
               const companyBatch = selectedRows.slice(i * batchSize, (i + 1) * batchSize);
   
-              // Remove companies and handle errors for each company
               await Promise.all(
                 companyBatch.map(async (companyId) => {
                   try {
-                    await removeCompanyFromList(companyId, props.selectedCollectionId);  // Actual API call
+                    await removeCompanyFromList(companyId, props.selectedCollectionId); 
                   } catch (error: any) {
-                    console.error(`Error removing company ${companyId}:`, error);  // Log the error for each company
-                    // Handle 400 errors specifically
+                    console.error(`Error removing company ${companyId}:`, error);
                     if (error.response && error.response.status === 400) {
                       console.log(`Company ${companyId} could not be removed.`);
                     }
@@ -231,9 +220,8 @@ const CompanyTable = (props: { selectedCollectionId: string }) => {
                 })
               );
   
-              // After the API call completes, send the progress update to WebSocket
               const progressPercentage = ((i + 1) / numBatches) * 100;
-              ws.send(JSON.stringify({ progress_percentage: progressPercentage }));  // Send progress
+              ws.send(JSON.stringify({ progress_percentage: progressPercentage }));
             }
   
             ws.send(JSON.stringify({ message: "Task completed" }));
@@ -247,17 +235,16 @@ const CompanyTable = (props: { selectedCollectionId: string }) => {
           const data = JSON.parse(event.data);
         
           if (data.progress_percentage) {
-            setProgress(data.progress_percentage);  // Update progress bar
+            setProgress(data.progress_percentage); 
           }
         
           if (data.message === "Task completed") {
-            setProgress(100);  // Set progress to 100%, but don't hide the progress bar
-            setSelectedRows([]);  // Clear selected rows
-        
-            fetchCompanies();  // Optionally refetch companies to update the UI
+            setProgress(100); 
+            setSelectedRows([]); 
+            fetchCompanies();
         
             if (ws.readyState !== WebSocket.CLOSED) {
-              ws.close();  // Ensure WebSocket is closed only once
+              ws.close();
             }
           }
         };
@@ -272,7 +259,7 @@ const CompanyTable = (props: { selectedCollectionId: string }) => {
   
       } catch (error) {
         console.error("Error establishing WebSocket:", error);
-        setShowProgressBar(false);  // Ensure the progress bar hides on error
+        setShowProgressBar(false);
       }
     }
   };
@@ -298,7 +285,7 @@ const CompanyTable = (props: { selectedCollectionId: string }) => {
         variant="contained"
         color="primary"
         onClick={handleAddToMyList}
-        disabled={selectedRows.length === 0}  // Disable if no companies are selected
+        disabled={selectedRows.length === 0} 
         style={{ marginBottom: 10 }}
       >
         Add to My List
@@ -342,7 +329,6 @@ const CompanyTable = (props: { selectedCollectionId: string }) => {
         Deselect All
       </Button>
 
-      {/* Progress Bar */}
       {showProgressBar && (
         <div style={{ marginBottom: 10, width: "100%" }}>
           <LinearProgress variant="determinate" value={progress} />
