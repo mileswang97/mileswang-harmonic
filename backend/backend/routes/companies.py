@@ -108,15 +108,13 @@ async def add_company_to_collection(
     )
 
     if existing_association:
-    # Instead of raising an error, log the issue or skip this company
-        print(f"Company {company_id} already in collection.")
-    else:
-        new_association = database.CompanyCollectionAssociation(
-            company_id=company_id, collection_id=target_collection.id
-        )
-        db.add(new_association)
-        db.commit()
+        raise HTTPException(status_code=400, detail="Company already in collection")
 
+    new_association = database.CompanyCollectionAssociation(
+        company_id=company_id, collection_id=target_collection.id
+    )
+    db.add(new_association)
+    db.commit()
 
     return {"message": "Company added to collection"}
 

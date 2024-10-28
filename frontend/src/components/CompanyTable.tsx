@@ -12,13 +12,14 @@ const CompanyTable = (props: { selectedCollectionId: string }) => {
   const [progress, setProgress] = useState<number>(0);
   const [showProgressBar, setShowProgressBar] = useState<boolean>(false); 
 
+  const fetchCompanies = async () => {
+    const newResponse = await getCollectionsById(props.selectedCollectionId, offset, pageSize);
+    setResponse(newResponse.companies);
+    setTotal(newResponse.total);
+  };
+
   useEffect(() => {
-    getCollectionsById(props.selectedCollectionId, offset, pageSize).then(
-      (newResponse) => {
-        setResponse(newResponse.companies);
-        setTotal(newResponse.total);
-      }
-    );
+    fetchCompanies();
   }, [props.selectedCollectionId, offset, pageSize]);
 
   useEffect(() => {
@@ -82,8 +83,9 @@ const CompanyTable = (props: { selectedCollectionId: string }) => {
           if (data.message === "Task completed") {
             setShowProgressBar(false);  // Hide progress bar when done
             setSelectedRows([]);  // Clear selected rows
-  
-            if (ws.readyState !== WebSocket.CLOSED) {
+            fetchCompanies();
+
+            if (ws.readyState !== WebSoc  ket.CLOSED) {
               ws.close();  // Ensure WebSocket is closed only once
             }
           }
