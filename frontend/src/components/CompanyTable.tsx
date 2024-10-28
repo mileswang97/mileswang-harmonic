@@ -32,8 +32,10 @@ const CompanyTable = (props: { selectedCollectionId: string }) => {
       const batchSize = 100;  // Define batch size
       const numBatches = Math.ceil(selectedRows.length / batchSize);
   
-      setShowProgressBar(true);  // Show progress bar
-      setProgress(0);  // Reset progress to 0
+      if (selectedRows.length > batchSize) {
+        setShowProgressBar(true);  // Show progress bar
+        setProgress(0);  // Reset progress to 0
+      }
   
       let ws: WebSocket;
   
@@ -51,7 +53,7 @@ const CompanyTable = (props: { selectedCollectionId: string }) => {
                 companyBatch.map(async (companyId) => {
                   try {
                     await addCompanyToList(companyId, "Liked Companies List");  // Actual API call
-                  } catch (error) {
+                  } catch (error: any) {
                     console.error(`Error adding company ${companyId}:`, error);  // Log the error for each company
                     // Handle 400 errors specifically (e.g., company already in collection)
                     if (error.response && error.response.status === 400) {
@@ -85,7 +87,7 @@ const CompanyTable = (props: { selectedCollectionId: string }) => {
             setSelectedRows([]);  // Clear selected rows
             fetchCompanies();
 
-            if (ws.readyState !== WebSoc  ket.CLOSED) {
+            if (ws.readyState !== WebSocket.CLOSED) {
               ws.close();  // Ensure WebSocket is closed only once
             }
           }
