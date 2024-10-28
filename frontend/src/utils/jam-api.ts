@@ -84,7 +84,7 @@ export async function removeCompanyFromList(companyId: number, collectionId: str
 export async function getAllCompanies(collectionId: string): Promise<ICompanyBatchResponse> {
     try {
         const response = await axios.get(`${BASE_URL}/collections/${collectionId}/companies/all`);
-        return response.data;  // Return the CompanyBatchOutput
+        return response.data;  
     } catch (error) {
         console.error('Error fetching all companies:', error);
         throw error;

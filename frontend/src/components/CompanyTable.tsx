@@ -28,7 +28,7 @@ const CompanyTable = (props: { selectedCollectionId: string }) => {
       try {
         await Promise.all(
           selectedRows.map(companyId =>
-            addCompanyToList(companyId, "Liked Companies List")  // Add each selected company to "Liked Companies List"
+            addCompanyToList(companyId, "Liked Companies List")  
           )
         );
         setResponse((prevCompanies) =>
@@ -61,19 +61,19 @@ const CompanyTable = (props: { selectedCollectionId: string }) => {
 
   const handleSelectAll = async () => {
     try {
-      // Fetch all company data in the current collection
+
       const companyBatch = await getAllCompanies(props.selectedCollectionId);
       const allCompanyIds = companyBatch.companies.map((company) => company.id);
-      console.log("All company IDs:", allCompanyIds);
-      setSelectedRows(allCompanyIds);  // Select all companies across pages in the collection
-      alert("Selecting all companies in collection");
+
+      setSelectedRows(allCompanyIds);
+
     } catch (error) {
       console.error("Error selecting all companies:", error);
     }
   };
 
   const handleDeselectAll = () => {
-    setSelectedRows([]);  // Clear all selected rows
+    setSelectedRows([]);
   };
 
   return (
@@ -82,18 +82,17 @@ const CompanyTable = (props: { selectedCollectionId: string }) => {
         variant="contained"
         color="primary"
         onClick={handleAddToLikedCompanies}
-        disabled={selectedRows.length === 0}  // Disable if no company is selected
+        disabled={selectedRows.length === 0}  
         style={{ marginBottom: 10 }}
       >
         Add to Liked Companies
       </Button>
 
-      {/* Remove from Current List Button */}
       <Button
         variant="contained"
         color="secondary"
         onClick={handleRemoveFromCurrentList}
-        disabled={selectedRows.length === 0}  // Disable if no company is selected
+        disabled={selectedRows.length === 0} 
         style={{ marginBottom: 10 }}
       >
         Remove from Current List
@@ -140,7 +139,7 @@ const CompanyTable = (props: { selectedCollectionId: string }) => {
           setOffset(newMeta.page * newMeta.pageSize);
         }}
         onRowSelectionModelChange={(newSelection) => {
-          setSelectedRows(newSelection as number[]);  // Update selected rows
+          setSelectedRows(newSelection as number[]); 
         }}
       />
     </div>

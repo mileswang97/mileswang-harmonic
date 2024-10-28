@@ -80,14 +80,13 @@ def get_companies(
 @router.post("/{company_id}/add-to-collection")
 async def add_company_to_collection(
     company_id: int,
-    collection_name: str = "Liked Companies List",  # Defaults to "Liked Companies List"
+    collection_name: str = "Liked Companies List",
     db: Session = Depends(database.get_db),
 ):
     """
     Add a company to a specified collection.
     By default, it adds the company to "Liked Companies List".
     """
-    # Fetch the collection by name
     target_collection = (
         db.query(database.CompanyCollection)
         .filter(database.CompanyCollection.collection_name == collection_name)
@@ -97,7 +96,6 @@ async def add_company_to_collection(
     if not target_collection:
         raise HTTPException(status_code=404, detail="Target collection not found")
 
-    # Check if the company already exists in the collection
     existing_association = (
         db.query(database.CompanyCollectionAssociation)
         .filter_by(company_id=company_id, collection_id=target_collection.id)
@@ -107,7 +105,6 @@ async def add_company_to_collection(
     if existing_association:
         raise HTTPException(status_code=400, detail="Company already in collection")
 
-    # Create a new association
     new_association = database.CompanyCollectionAssociation(
         company_id=company_id, collection_id=target_collection.id
     )
@@ -127,7 +124,6 @@ async def remove_company_from_collection(
     Remove a company from the specified collection.
     The collection is identified by its collection_id.
     """
-    # Fetch the target collection by ID
     target_collection = (
         db.query(database.CompanyCollection)
         .filter(database.CompanyCollection.id == collection_id)
@@ -137,7 +133,6 @@ async def remove_company_from_collection(
     if not target_collection:
         raise HTTPException(status_code=404, detail="Target collection not found")
 
-    # Check if the company exists in the collection
     association = (
         db.query(database.CompanyCollectionAssociation)
         .filter_by(company_id=company_id, collection_id=target_collection.id)
@@ -147,7 +142,6 @@ async def remove_company_from_collection(
     if not association:
         raise HTTPException(status_code=400, detail="Company not in collection")
 
-    # Remove the association between the company and the collection
     db.delete(association)
     db.commit()
 
