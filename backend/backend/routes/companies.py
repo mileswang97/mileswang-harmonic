@@ -31,8 +31,12 @@ def fetch_companies_with_liked(
         .first()
     )
 
+    if not liked_list:
+        raise HTTPException(status_code=404, detail="Liked Companies List not found")
+
     liked_associations = (
         db.query(database.CompanyCollectionAssociation)
+        .join(database.Company, database.Company.id == database.CompanyCollectionAssociation.company_id)  # Join condition
         .filter(database.Company.id.in_(company_ids))
         .filter(
             database.CompanyCollectionAssociation.collection_id == liked_list.id,
@@ -56,6 +60,7 @@ def fetch_companies_with_liked(
         )
         for company, liked in results
     ]
+
 
 
 @router.get("", response_model=CompanyBatchOutput)

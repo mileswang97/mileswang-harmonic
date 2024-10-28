@@ -93,7 +93,7 @@ def get_all_companies_in_collection(
         CompanyOutput(
             id=company.id,
             company_name=company.company_name,
-            liked=company.liked
+            liked=False
         )
         for company in companies
     ]
