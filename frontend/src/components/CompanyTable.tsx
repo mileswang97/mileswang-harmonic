@@ -24,6 +24,9 @@ const CompanyTable = (props: { selectedCollectionId: string }) => {
 
   useEffect(() => {
     setOffset(0);
+    setShowProgressBar(false);  // Hide the progress bar when switching lists
+    setProgress(0);  // Reset progress to 0 when switching lists
+    setSelectedRows([]);
   }, [props.selectedCollectionId]);
 
   // Function to add selected companies to "Liked Companies List"
@@ -77,16 +80,17 @@ const CompanyTable = (props: { selectedCollectionId: string }) => {
   
         ws.onmessage = (event) => {
           const data = JSON.parse(event.data);
-  
+        
           if (data.progress_percentage) {
             setProgress(data.progress_percentage);  // Update progress bar
           }
-  
+        
           if (data.message === "Task completed") {
-            setShowProgressBar(false);  // Hide progress bar when done
+            setProgress(100);  // Set progress to 100%, but don't hide the progress bar
             setSelectedRows([]);  // Clear selected rows
-            fetchCompanies();
-
+        
+            fetchCompanies();  // Optionally refetch companies to update the UI
+        
             if (ws.readyState !== WebSocket.CLOSED) {
               ws.close();  // Ensure WebSocket is closed only once
             }
@@ -158,16 +162,17 @@ const CompanyTable = (props: { selectedCollectionId: string }) => {
   
         ws.onmessage = (event) => {
           const data = JSON.parse(event.data);
-  
+        
           if (data.progress_percentage) {
             setProgress(data.progress_percentage);  // Update progress bar
           }
-  
+        
           if (data.message === "Task completed") {
-            setShowProgressBar(false);  // Hide progress bar when done
+            setProgress(100);  // Set progress to 100%, but don't hide the progress bar
             setSelectedRows([]);  // Clear selected rows
-            fetchCompanies();  // Refetch companies to update the UI
-  
+        
+            fetchCompanies();  // Optionally refetch companies to update the UI
+        
             if (ws.readyState !== WebSocket.CLOSED) {
               ws.close();  // Ensure WebSocket is closed only once
             }
@@ -240,16 +245,17 @@ const CompanyTable = (props: { selectedCollectionId: string }) => {
   
         ws.onmessage = (event) => {
           const data = JSON.parse(event.data);
-  
+        
           if (data.progress_percentage) {
             setProgress(data.progress_percentage);  // Update progress bar
           }
-  
+        
           if (data.message === "Task completed") {
-            setShowProgressBar(false);  // Hide progress bar when done
+            setProgress(100);  // Set progress to 100%, but don't hide the progress bar
             setSelectedRows([]);  // Clear selected rows
-            fetchCompanies();  // Refetch companies to update the UI
-  
+        
+            fetchCompanies();  // Optionally refetch companies to update the UI
+        
             if (ws.readyState !== WebSocket.CLOSED) {
               ws.close();  // Ensure WebSocket is closed only once
             }
