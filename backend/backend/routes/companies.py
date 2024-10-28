@@ -85,12 +85,11 @@ def get_companies(
 @router.post("/{company_id}/add-to-collection")
 async def add_company_to_collection(
     company_id: int,
-    collection_name: str = "Liked Companies List",
+    collection_name: str = Query(...),  
     db: Session = Depends(database.get_db),
 ):
     """
     Add a company to a specified collection.
-    By default, it adds the company to "Liked Companies List".
     """
     target_collection = (
         db.query(database.CompanyCollection)
